@@ -27,7 +27,7 @@ function init() {
         name: "choice",
         type: "list",
         message: "Select your task.",
-        choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add new Product"]
+        choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add new Product", "Exit"]
     }]).then(function (u) {
         switch (u.choice) {
             case "View Products for Sale":
@@ -41,6 +41,9 @@ function init() {
                 break;
             case "Add new Product":
                 addNew();
+                break;
+            case "Exit":
+                connection.end();
                 break;
         }
     })
@@ -91,7 +94,9 @@ function addInv() {
                         stock_quantity: newStock
                     }, {
                         item_id: u.id
-                    }]
+                    }], function(err, res){
+                        if(err) throw err;
+                    }
                 );
                 console.log(innerestquery.sql);
             })
@@ -116,11 +121,10 @@ function addNew(){
             type: "number"
         }
     ]).then(function(a){
-        var esc = "("+a.product+", "+a.department+", "+a.price+", "+a.stock+")";
+        var toAdd = {product_name: a.product, department_name: a.department, price: a.price, stock_quantity: a.stock};
         var query = connection.query(
-`INSERT INTO products (product_name, department_name, price, stock_quantity) 
-VALUES ?`,
-            esc, function(err, result){
+"INSERT INTO products SET ?", toAdd,
+function(err, result){
                 if(err) throw err;
             }
         )
