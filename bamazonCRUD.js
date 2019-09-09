@@ -40,26 +40,30 @@ function init() {
                     message: "Please enter the number of that product that you would like to purchase."
                 }
             ]).then(function (p) {
-                var innerquery = connection.query(
-                    'SELECT * FROM products WHERE item_id = ?', [p.item_choice], function(err, res){
-                        if(err) throw err;
-                        if(res[0].stock_quantity<p.item_quantity){
-                            console.log("Insufficient Quantity!");
-                        } else{
-                            var temp = res[0].stock_quantity - p.item_quantity;
-                            console.log(temp);
-                            var innerestquery = connection.query(
-                                `UPDATE products SET ? WHERE ?`,[{
-                                    stock_quantity: temp
-                                }, {
-                                    item_id: p.item_choice
-                                }]
-                            );
-                        console.log(innerestquery.sql);
-                        }
-                        
-                    })
+                    var innerquery = connection.query(
+                        'SELECT * FROM products WHERE item_id = ?', [p.item_choice],
+                        function (err, res) {
+                            if (err) throw err;
+                            if (res[0].stock_quantity < p.item_quantity) {
+                                console.log("Insufficient Quantity!");
+                                init();
+                            } else {
+                                var temp = res[0].stock_quantity - p.item_quantity;
+                                var totalcost = parseFloat(res[0].price * p.item_quantity);
+                                var innerestquery = connection.query(
+                                    `UPDATE products SET ? WHERE ?`, [{
+                                        stock_quantity: temp
+                                    }, {
+                                        item_id: p.item_choice
+                                    }]
+                                );
+                                console.log(innerestquery.sql);
+                                console.log(`The total cost for ${p.item_quantity} ${res[0].product_name} is $${totalcost}`);
+                                init();
+                            }
+
+                        })
             })
-        }
-    );
+    }
+);
 }
