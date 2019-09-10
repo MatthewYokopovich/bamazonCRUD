@@ -50,9 +50,11 @@ function init() {
                             } else {
                                 var temp = res[0].stock_quantity - p.item_quantity;
                                 var totalcost = parseFloat(res[0].price * p.item_quantity);
+                                var newSales = res[0].product_sales + totalcost;
                                 var innerestquery = connection.query(
                                     `UPDATE products SET ? WHERE ?`, [{
-                                        stock_quantity: temp
+                                        stock_quantity: temp,
+                                        product_sales: newSales
                                     }, {
                                         item_id: p.item_choice
                                     }]
